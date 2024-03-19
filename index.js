@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 1990
 
 mongoose.connection.once('open', () => {
   console.log('Database connection success')
-  app.listen(() => {
+  app.listen(PORT, () => {
     console.log(`server running on http://localhost:${PORT}`)
   })
 })
