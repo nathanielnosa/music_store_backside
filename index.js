@@ -2,11 +2,17 @@ require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbCon')
-
+const cors = require('cors')
+const credentials = require('./middleware/credentials')
+const corsOptions = require('./config/corsOption')
 const app = express()
+
+app.use(credentials)
+app.use(cors(corsOptions))
 
 app.use(express.json())
 connectDB()
+
 
 // routes
 app.use('/api/login', require('./routers/login'))
