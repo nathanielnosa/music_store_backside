@@ -5,13 +5,13 @@ const CryptoJs = require('crypto-js')
 
 const handleLogin = async (req, res) => {
   const { username, password, rememberMe } = req.body
-  if (!username || !password) return res.status(401).json("Enter username/password")
+  if (!username || !password) return res.status(401).json({ message: "Enter username/password" })
   try {
     const logUser = await User.findOne({ username }).exec()
-    if (!logUser) return res.status(401).json("Invalid username/password");
+    if (!logUser) return res.status(401).json({ message: "Invalid username/password" });
 
     const match = CryptoJs.AES.decrypt(logUser.password, process.env.PWDENC).toString(CryptoJs.enc.Utf8)
-    if (match !== password) return res.status(401).json("Invalid username/password")
+    if (match !== password) return res.status(401).json({ message: "Invalid username/password" })
 
     //jwt
     // Generate JWT token
@@ -31,7 +31,7 @@ const handleLogin = async (req, res) => {
 
 
     const { password: userPwd, ...others } = logUser._doc
-    res.status(200).json({ message: `${others.firstname} logged in successfully`, access_token });
+    res.status(200).json({ message: `${others.firstname} logged in successfully`, access_token, alert: true });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
