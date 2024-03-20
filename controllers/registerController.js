@@ -7,7 +7,7 @@ const handleRegister = async (req, res) => {
 
   try {
     // Encrypt trimmed passwords
-    if (password !== cPwd) return res.status(401).json('Password not match!')
+    if (password !== cPwd) return res.status(401).json({ message: 'Password not match!' })
     const pwd = CryptoJs.AES.encrypt(password, process.env.PWDENC).toString();
 
     const newUser = await User.create(
@@ -19,10 +19,9 @@ const handleRegister = async (req, res) => {
         password: pwd,
       })
     await sendWelcomeEmail(newUser.email, newUser.firstname)
-    res.status(201).json(`${newUser.firstname} created successfully`)
-
+    res.status(201).json({ message: `${newUser.firstname} Register successful!`, alert: true });
   } catch (error) {
-    res.status(500).json(`Error:${error.message}`)
+    res.status(500).json({ message: `Error:${error.message}`, alert: true })
   }
 }
 
