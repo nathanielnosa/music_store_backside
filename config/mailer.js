@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'proncode@gmail.com',
-    pass: 'vecsetspmstjojpd'
+    user: process.env.email_user,
+    pass: process.env.email_pass
   }
 });
 
@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 const sendWelcomeEmail = async (email, firstname) => {
   try {
     await transporter.sendMail({
-      from: 'proncode@gmail.com',
+      from: process.env.email_user,
       to: email,
       subject: 'Welcome to MusicHub!',
       text: `Dear ${firstname},\n\nWelcome to Music Hub! We're excited to have you on board.\n\nBest regards,\nThe Music Hub Team`

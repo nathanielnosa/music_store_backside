@@ -10,7 +10,10 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
-  collection: { type: Array },
+  image: String,
+  artist: String,
+  price: Number,
+  collections: { type: Array },
   inStock: { type: Number },
   isAvailable: {
     type: Boolean,
