@@ -1,47 +1,41 @@
-const Product = require('../models/Products')
+const Order = require('../models/Orders')
 
-const createProduct = async (req, res) => {
-  const { title, description, collections,artist, inStock, price, image } = req.body
+const createOrder = async (req, res) => {
+  const { userId, products, amount, address } = req.body
   try {
-    const newProduct = await Product.create({
-      title,
-      description,
-      inStock,
-      price,
-      collections,
-      artist,
-      image
+    const newOrder = await Order.create({
+      userId,
+      products,
+      amount,
+      address
     })
-    res.status(201).json(newProduct)
+    res.status(201).json(newOrder)
   } catch (error) {
     res.status(500).json(`Error: ${error.message}`)
   }
 }
-const updateProduct = async (req, res) => {
-  const { title, description, collections,artist,isAvailable, inStock, price, image } = req.body
+const updateOrder = async (req, res) => {
+  const { userId, products, amount, address, status } = req.body
   try {
-    const foundProduct = await Product.findOne({ _id: req.params.id }).exec()
-    if (title) foundProduct.title = title
-    if (description) foundProduct.description = description
-    if (collections) foundProduct.collections = collections 
-    if (artist) foundProduct.artist = artist 
-    if (inStock) foundProduct.inStock = inStock
-    if (isAvailable) foundProduct.isAvailable = isAvailable
-    if (price) foundProduct.price = price
-    if (image) foundProduct.image = image
+    const foundOrder = await Order.findOne({ _id: req.params.id }).exec()
+    if (userId) foundOrder.userId = userId
+    if (products) foundOrder.products = products
+    if (amount) foundOrder.amount = amount
+    if (address) foundOrder.address = address
+    if (status) foundOrder.status = status
 
-    const result = await foundProduct.save()
+    const result = await foundOrder.save()
     res.status(201).json(result)
   } catch (error) {
     res.status(500).json(`Error: ${error.message}`)
   }
 }
 
-const deleteProduct = async (req, res) => {
+const deleteOrder = async (req, res) => {
   try {
-    const foundProduct = await Product.findOne({ _id: req.params.id }).exec()
-    if (!foundProduct) return res.status(302).json("No product with id found")
-    const result = await foundProduct.deleteOne({ _id: req.params.id })
+    const foundOrder = await Order.findOne({ _id: req.params.id }).exec()
+    if (!foundOrder) return res.status(302).json("No Order with id found")
+    const result = await foundOrder.deleteOne({ _id: req.params.id })
     res.status(200).json(result)
   } catch (error) {
     res.status(500).json(`Error: ${error.message}`)
@@ -49,37 +43,51 @@ const deleteProduct = async (req, res) => {
   }
 }
 
-const getProduct = async (req, res) => {
+const getOrder = async (req, res) => {
   try {
-    const foundProduct = await Product.findOne({ _id: req.params.id }).exec()
-    if (!foundProduct) return res.status(302).json("No product with id found")
-    res.status(200).json(foundProduct)
+    const foundOrder = await Order.find({ userId: req.params.userId }).exec()
+    if (!foundOrder) return res.status(302).json("No Order with id found")
+    res.status(200).json(foundOrder)
   } catch (error) {
     res.status(500).json(`Error: ${error.message}`)
   }
 }
 
-const getProducts = async (req, res) => {
-  const query = req.query.new
-  const collection = req.query.collection
+const getOrders = async (req, res) => {
   try {
-    let product;
-    if (query) {
-      product = await Product.find().sort({ createdAt: -1 }).limit(3).exec()
-    } else if (collection) {
-      product = await Product.find({
-        collections: {
-          $in: [collection]
+    const orders = await Order.find().exec()
+    res.status(200).json(orders)
+  } catch (error) {
+    res.status(500).json(`Error: ${error.message}`)
+  }
+}
+
+//Order stats
+const getOrderStats = async (req, res) => {
+  const date = new Date()
+  const lastMonth = new Date(date.setMonth(date.getMonth() - 1))
+  const previousMonth = new Date(date.setMonth(lastMonth.getMonth() - 1))
+  try {
+    const income = await Order.aggregate([
+      { $match: { createdAt: { $gte: previousMonth } } },
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          sales: "$amount"
+        },
+      },
+      {
+        $group: {
+          _id: "$month",
+          total: { $sum: "$sales" }
         }
-      }).exec()
-    } else {
-      product = await Product.find().exec()
-    }
-    res.status(200).json(product)
+      }
+    ]);
+    res.status(200).json(income)
   } catch (error) {
     res.status(500).json(`Error: ${error.message}`)
   }
 }
 
 
-module.exports = { createProduct, updateProduct, deleteProduct, getProduct, getProducts }
+module.exports = { createOrder, updateOrder, deleteOrder, getOrder, getOrders, getOrderStats }
