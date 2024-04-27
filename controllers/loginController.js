@@ -31,7 +31,7 @@ const handleLogin = async (req, res) => {
 
 
     const { password: userPwd, ...others } = logUser._doc
-    res.status(200).json({ message: `${others.firstname} logged in successfully`, access_token, alert: true });
+    res.status(200).json({ ...others, message: `${others.firstname} logged in successfully`, access_token, alert: true });
 
   } catch (error) {
     res.status(500).json({ error: error.message });

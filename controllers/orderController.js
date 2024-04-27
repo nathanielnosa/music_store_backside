@@ -1,13 +1,14 @@
 const Order = require('../models/Orders')
 
 const createOrder = async (req, res) => {
-  const { userId, products, amount, address } = req.body
+  const { userId, products, amount, address, status } = req.body
   try {
     const newOrder = await Order.create({
       userId,
       products,
       amount,
-      address
+      address,
+      status
     })
     res.status(201).json(newOrder)
   } catch (error) {
@@ -64,12 +65,18 @@ const getOrders = async (req, res) => {
 
 //Order stats
 const getOrderStats = async (req, res) => {
+  const productId = req.query.pid
   const date = new Date()
   const lastMonth = new Date(date.setMonth(date.getMonth() - 1))
   const previousMonth = new Date(date.setMonth(lastMonth.getMonth() - 1))
   try {
     const income = await Order.aggregate([
-      { $match: { createdAt: { $gte: previousMonth } } },
+      {
+        $match: {
+          createdAt: { $gte: previousMonth }, ...(productId &&
+            { products: { $elemMatch: { productId } } })
+        }
+      },
       {
         $project: {
           month: { $month: "$createdAt" },

@@ -8,6 +8,7 @@ const corsOptions = require('./config/corsOption')
 const app = express()
 
 app.use(credentials)
+app.use(cors())
 app.use(cors(corsOptions))
 
 app.use(express.json())
@@ -22,6 +23,7 @@ app.use('/api/user', require('./routers/user'))
 app.use('/api/product', require('./routers/product'))
 app.use('/api/cart', require('./routers/cart'))
 app.use('/api/order', require('./routers/order'))
+app.use('/api/checkout', require('./routers/stripe'))
 
 const PORT = process.env.PORT || 1990
 
